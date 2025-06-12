@@ -1,0 +1,137 @@
+# Problem and Traditional Setup, without incrementalization (in English):
+# Each player process does something like this: 
+# 1. Waits for a "start voting" signal
+# 2. Sends their vote to all others
+# 3. Collects all votes
+# 4. Tallies results
+# 5. Announces outcomes
+# Each time voting starts, you recompute the whole tally from scratch.
+
+# Making it more efficient with incrementalization:
+# Don't recompute the entire vote count every round. 
+# Maintain partial results and update them based on changes (P2).
+# Only resend game state if it changes.
+# Maintain loop invariants (e.g., current turn, vote count) as first-class state.
+# Cache results of aggregate operations (like majority checks). (I2)
+
+
+import sys
+import random
+
+
+class Player(process):
+    def setup(self, id, all_players, coordinator): # need to pass coordinator to all players
+        self.id = id
+        self.all_players = all_players
+        self.coordinator = coordinator
+        self.alive_players = set(all_players) # Tracks who is still left in the game
+    
+    def run():
+        round = 0
+        while len(self.alive_players) > 1 and self in self.alive_players:
+            await(received(('start_voting', round, alive_list)))
+            self.alive_players = set(alive_list)
+        
+            if self in self.alive_players: # Only vote if you're still alive_list
+                targets = self.alive_players - {self}
+                if targets: 
+                    my_vote = random.choice(list(targets)) # random voting
+                    send(('vote', round, my_vote, self), to=coordinator)
+                    output(f'Player {self} votes to eliminate Player {my_vote}') #self.id is deprecated
+                
+            # Wait for results
+            await(received(('elimination', round, eliminated_player)))
+            if eliminated_player == self: 
+                output(f'Player {self} has been eliminated!')
+                break
+            else: 
+                output(f'Player {self} sees Player {eliminated_player} eliminated')
+
+            round += 1
+
+
+class Coordinator(process): # Sends "start" messages and collects votes
+    def setup(self, players):
+        self.players = players
+        self.alive_players = set(players)
+
+
+    def run():
+        round = 0
+        while len(self.alive_players) > 1:
+            output(f'=== Round {round}: {len(self.alive_players)} players remaining ===')
+
+            # Start voting round
+            send(('start_voting', round, list(self.alive_players)), to= self.alive_players)
+
+            # Collect votes from alive players
+            await(each(p in self.alive_players, has=received(('vote', round, target, p))))
+
+            # Incrementally tally elimination votes
+            vote_counts = {}
+            for (target, voter_id) in setof((target, voter_id), received(('vote', round, target, voter_id))):
+            # setof(expresion, condition) -> expression: what to extract from each matching message, condition -> which messages to look at 
+            # looks at all received messages that match pattern ('vote', round, target, voter_id)
+            # for each matching message extract the tuple (target, voter_id)
+            # return a set of all extracted tuples
+                if target in vote_counts: 
+                    vote_counts[target] += 1
+                else: 
+                    # the target is not in vote_counts yet, initialize them with the first vote
+                    vote_counts[target] = 1
+
+            # Find player with most votes 
+            # if vote_counts:
+                # eliminated = max(vote_counts.keys(), key=lambda p: vote_counts[p])
+                # lambda expression maps each p to vote_counts[p]
+                # self.alive_players.remove(eliminated)
+
+                # output(f'Vote results: {[(p.id, count) for p, count in vote_counts.items()]}')
+                # output(f'Player {eliminated.id} eliminated with {vote_counts[elimminated]} votes')
+
+                # Announce elimination
+                # send(('elimination', round, eliminated), to=self.players)
+            
+            if vote_counts: 
+                eliminated = None
+                max_votes = 0
+                for player, count in vote_counts.items():
+                    if count > max_votes: 
+                        max_votes = count
+                        eliminated = player
+                
+                self.alive_players.remove(eliminated)
+
+                output(f'Vote results: {[(p, count) for p, count in vote_counts.items()]}')
+                output(f'Player {eliminated} was eliminated with {max_votes} votes')
+
+                send(('elimination', round, eliminated), to=self.players)
+            
+            round += 1
+
+        # Game over
+        if self.alive_players:
+            winner = list(self.alive_players)[0]
+            output(f'GAME OVER: Player {winner.id} wins!')
+        else: 
+            output('GAME OVER! No survivors.')
+
+
+
+def main():
+    nplayers = int(sys.argv[1]) if len(sys.argv) > 1 else 5 # default value 5
+
+    config(channel = 'fifo', clock = 'lamport')
+
+    coordinator = new(Coordinator)
+    players = new(Player, num=nplayers)
+
+    setup(coordinator, (players,))
+    for i, p  in enumerate(players):
+        setup(p, (i, players, coordinator))
+    
+    start([coordinator] + players)
+
+
+if __name__ == '__main__':
+    main()
