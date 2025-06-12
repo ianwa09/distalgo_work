@@ -105,3 +105,4 @@ If you encounter issues:
 
 - [Lamport, L. (1978). "Time, clocks, and the ordering of events in a distributed system"](https://lamport.azurewebsites.net/pubs/time-clocks.pdf)
 - [DistAlgo Documentation](https://github.com/DistAlgo/distalgo)
+- [Liu, Y. A. (2024). "Incremental Computation: What Is the Essence? (Invited Contribution)". In Proceedings of the 2024 ACM SIGPLAN International Workshop on Partial Evaluation and Program Manipulation (PEPM 2024), pp. 39-52.](https://dl.acm.org/doi/10.1145/3635800.3637447)
