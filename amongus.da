@@ -20,34 +20,52 @@ import random
 
 
 class Player(process):
-    def setup(player_id, all_players, coordinator): # need to pass coordinator to all players
-        self.player_id = player_id # don't use self.id
+    def setup(player_id, all_players, coordinator):
+        self.player_id = player_id
         self.all_players = all_players
         self.coordinator = coordinator
-        self.alive_players = set(all_players) # Tracks who is still left in the game
+        self.alive_players = set(all_players)
+        self.current_round = 0
+        self.got_start = False
+        self.got_elimination = False
+        self.eliminated_player = None
     
     def run():
-        round = 0
         while len(self.alive_players) > 1 and self in self.alive_players:
-            await(some(received(('start_voting', round, alive_list)))) # need to use some() to capture the variables properly in distalgo
-            self.alive_players = set(alive_list)
+            # Wait for start message
+            self.got_start = False
+            while not self.got_start:
+                await(self.got_start == True)
         
-            if self in self.alive_players: # Only vote if you're still alive_list
+            if self in self.alive_players:
                 targets = self.alive_players - {self}
                 if targets: 
-                    my_vote = random.choice(list(targets)) # random voting
-                    send(('vote', round, my_vote, self), to=self.coordinator)  # Fixed: added self.
-                    output(f'Player {self.player_id} votes to eliminate Player {my_vote}') # Fixed: use player_id for display
+                    my_vote = random.choice(list(targets))
+                    send(('vote', self.current_round, my_vote, self), to=self.coordinator)
+                    output(f'Player {self.player_id} votes to eliminate Player {my_vote}')
                 
-            # Wait for results
-            await(received(('elimination', round, eliminated_player)))
-            if eliminated_player == self: 
-                output(f'Player {self.player_id} has been eliminated!')  # Fixed: use player_id for display
+            # Wait for elimination message
+            self.got_elimination = False
+            while not self.got_elimination:
+                await(self.got_elimination == True)
+                
+            if self.eliminated_player == self: 
+                output(f'Player {self.player_id} has been eliminated!')
                 break
             else: 
-                output(f'Player {self.player_id} sees Player {eliminated_player} eliminated')  # Fixed: use player_id for display
+                output(f'Player {self.player_id} sees Player {self.eliminated_player} eliminated')
 
-            round += 1
+            self.current_round += 1
+    
+    def receive(msg=('start_voting', round, alive_list)):
+        if round == self.current_round:
+            self.alive_players = set(alive_list)
+            self.got_start = True
+            
+    def receive(msg=('elimination', round, eliminated_player)):
+        if round == self.current_round:
+            self.eliminated_player = eliminated_player
+            self.got_elimination = True
 
 
 class Coordinator(process): # Sends "start" messages and collects votes
@@ -58,7 +76,7 @@ class Coordinator(process): # Sends "start" messages and collects votes
 
     def run():
         round = 0
-        while len(self.alive_players) > 1:
+        while len(self.alive_players) > 1 and round < 10: # stop at 10 rounds for debugging
             output(f'=== Round {round}: {len(self.alive_players)} players remaining ===')
 
             # Start voting round
@@ -100,7 +118,8 @@ class Coordinator(process): # Sends "start" messages and collects votes
                         max_votes = count
                         eliminated = player
                 
-                self.alive_players.remove(eliminated)
+                if eliminated in self.alive_players: #safety check
+                    self.alive_players.remove(eliminated) 
 
                 output(f'Vote results: {[(p, count) for p, count in vote_counts.items()]}')
                 output(f'Player {eliminated} was eliminated with {max_votes} votes')
