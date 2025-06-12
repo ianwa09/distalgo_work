@@ -100,6 +100,7 @@ If you encounter issues:
 2. **Check DistAlgo installation**: `py -3.7 -c "import da; print(da.__version__)"`
 3. **Test with simple file**: `py -3.7 -m da test.da`
 4. **Ensure .da extension**: DistAlgo won't work with `.py` files
+5. **Check the official documentation**: You can find more accurate descriptions from the [official DistAlgo Documentation](https://github.com/DistAlgo/distalgo).
 
 ## References
 
