@@ -1,0 +1,44 @@
+import sys
+
+class P(process):
+    def setup(s, nrequests):
+        pass
+
+    def run():
+        def task(): 
+            output('in critical section')
+        
+        for i in range(nrequests):
+            # Request
+            c = logical_clock()
+            send(('request', c, self), to=s)
+            
+            # Wait for acks from all other processes (define the variable)
+            await(each(p in s, has=some(received(('ack', c2, p)))))
+            
+            # Critical section
+            task()
+            
+            # Release
+            send(('release', c, self), to=s)
+
+        send(('done', self), to=s)
+        await(each(p in s, has=received(('done', p))))
+        output('terminating')
+
+    def receive(msg=('request', c, p)):
+        send(('ack', logical_clock(), self), to=p)
+
+def main():
+    nprocs = int(sys.argv[1] if len(sys.argv) > 1 else 3)
+    nrequests = int(sys.argv[2] if len(sys.argv) > 2 else 1)
+
+    config(channel='fifo', clock='lamport')
+    
+    ps = new(P, num=nprocs)
+    for p in ps:
+        setup(p, (ps - {p}, nrequests))
+    start(ps)
+
+if __name__ == '__main__':
+    main()

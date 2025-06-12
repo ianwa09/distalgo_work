@@ -1,0 +1,11 @@
+class P(process):
+    def setup():
+        pass
+        
+    def run():
+        output('Hello from DistAlgo')
+
+def main():
+    p = new(P)
+    setup(p, ())  # Pass empty tuple as arguments
+    start(p)
