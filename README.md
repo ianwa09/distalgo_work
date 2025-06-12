@@ -60,9 +60,7 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 - **File extensions matter**: `.da` triggers compilation, `.py` runs raw Python
 - **Version consistency**: Every command needs explicit `py -3.7`
 - **High-level syntax**: Use `process`, `new()`, `start()` after compilation
-
-### Time Investment
-~2 hours of debugging to learn: *Sometimes the solution isn't fixing the code—it's using the right tools in the right way.*
+~2 hours of debugging 
 
 ## Algorithm Details
 
