@@ -34,7 +34,7 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 
 ### Python Version Issues
 - **Error**: `Python version X.Y.Z is not supported`
-- **Solution**: Always use `py -3.7` explicitly
+- **Solution**: Always use `py -3.7` explicitly (3.8 and 3.9 are also supported, but I have not tested with them yet)
 
 ### Import Errors
 - **Error**: `NameError: name 'process' is not defined`
