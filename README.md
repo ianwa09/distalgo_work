@@ -30,7 +30,7 @@ This repository contains an implementation of Lamport's mutual exclusion algorit
 
 ### ⚠️ **CRITICAL: Use .da file extension, not .py!**
 
-DistAlgo is a domain-specific language that compiles to Python. Files must have `.da` extension for proper compilation.
+DistAlgo is a domain-specific language that compiles to Python. Files must have `.da` extension for proper compilation. (I learned this the hard way 🤣)
 
 ### Python Version Issues
 - **Error**: `Python version X.Y.Z is not supported`
