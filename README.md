@@ -45,7 +45,7 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 - **Error**: `NameError: name 'c2' is not defined`
 - **Solution**: Use `some(received(('ack', c2, p)))` for proper variable binding
 
-## Our Debugging Journey
+## My Debugging Journey
 
 ### The Problem Chain
 1. **Python Version Conflicts** - System defaulted to Python 3.13
