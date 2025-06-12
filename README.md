@@ -55,7 +55,7 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 5. **File Extension Revelation** - Used `.py` instead of `.da`
 6. **Syntax Issues** - Incorrect pattern matching syntax
 
-### Key Insights
+### Things that I learned..
 - DistAlgo is a **DSL that compiles to Python**, not a Python library
 - **File extensions matter**: `.da` triggers compilation, `.py` runs raw Python
 - **Version consistency**: Every command needs explicit `py -3.7`
