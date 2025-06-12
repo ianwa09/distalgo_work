@@ -30,11 +30,11 @@ This repository contains an implementation of Lamport's mutual exclusion algorit
 
 ### ⚠️ **CRITICAL: Use .da file extension, not .py!**
 
-DistAlgo is a domain-specific language that compiles to Python. Files must have `.da` extension for proper compilation.
+DistAlgo is a domain-specific language that compiles to Python. Files must have `.da` extension for proper compilation. (I learned this the hard way 🤣)
 
 ### Python Version Issues
 - **Error**: `Python version X.Y.Z is not supported`
-- **Solution**: Always use `py -3.7` explicitly
+- **Solution**: Always use `py -3.7` explicitly (3.8 and 3.9 are also supported, but I have not tested with them yet)
 
 ### Import Errors
 - **Error**: `NameError: name 'process' is not defined`
@@ -45,7 +45,7 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 - **Error**: `NameError: name 'c2' is not defined`
 - **Solution**: Use `some(received(('ack', c2, p)))` for proper variable binding
 
-## Our Debugging Journey
+## My Debugging Journey
 
 ### The Problem Chain
 1. **Python Version Conflicts** - System defaulted to Python 3.13
@@ -55,14 +55,12 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 5. **File Extension Revelation** - Used `.py` instead of `.da`
 6. **Syntax Issues** - Incorrect pattern matching syntax
 
-### Key Insights
+### Things that I learned..
 - DistAlgo is a **DSL that compiles to Python**, not a Python library
 - **File extensions matter**: `.da` triggers compilation, `.py` runs raw Python
 - **Version consistency**: Every command needs explicit `py -3.7`
 - **High-level syntax**: Use `process`, `new()`, `start()` after compilation
-
-### Time Investment
-~2 hours of debugging to learn: *Sometimes the solution isn't fixing the code—it's using the right tools in the right way.*
+- ~2 hours of debugging 
 
 ## Algorithm Details
 
