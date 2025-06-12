@@ -13,10 +13,12 @@ class P(process):
             c = logical_clock()
             send(('request', c, self), to=s)
             
-            # Wait for acks from all other processes (define the variable)
-            await(each(p in s, has=some(received(('ack', c2, p)))))
+            # Lamport await condition - make sure that timing is correct
+            await(each(p in s, has=received(('request', c2, p)), 
+                      has=received(('release', c2, p)) or (c, self) < (c2, p))
+                  and each(p in s, has=some(received(('ack', c2, p)), has=c2 > c)))
             
-            # Critical section
+            # Critical section  
             task()
             
             # Release
@@ -28,6 +30,9 @@ class P(process):
 
     def receive(msg=('request', c, p)):
         send(('ack', logical_clock(), self), to=p)
+
+    def receive(msg=('release', c, p)):
+        pass  # Handle release messages 
 
 def main():
     nprocs = int(sys.argv[1] if len(sys.argv) > 1 else 3)
