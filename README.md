@@ -56,10 +56,10 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 ### The Problem Chain
 
 1. **Python Version Conflicts** - System defaulted to Python 3.13
-2. **Import Hell** - Treated DistAlgo as regular Python library
-3. **Low-Level API Struggles** - Tried to instantiate processes manually
-4. **Configuration Nightmares** - Couldn't configure `global_init()` properly
-5. **File Extension Revelation** - Used `.py` instead of `.da`
+2. **Imports** - Treated DistAlgo as regular Python library
+3. **API Struggles** - Tried to instantiate processes manually
+4. **Configuration** - Couldn't configure `global_init()` properly
+5. **File Extension** - Used `.py` instead of `.da`
 6. **Syntax Issues** - Incorrect pattern matching syntax
 
 ### Things that I learned..
