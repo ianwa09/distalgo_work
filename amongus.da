@@ -20,8 +20,8 @@ import random
 
 
 class Player(process):
-    def setup(self, id, all_players, coordinator): # need to pass coordinator to all players
-        self.id = id
+    def setup(player_id, all_players, coordinator): # need to pass coordinator to all players
+        self.player_id = player_id # don't use self.id
         self.all_players = all_players
         self.coordinator = coordinator
         self.alive_players = set(all_players) # Tracks who is still left in the game
@@ -29,29 +29,29 @@ class Player(process):
     def run():
         round = 0
         while len(self.alive_players) > 1 and self in self.alive_players:
-            await(received(('start_voting', round, alive_list)))
+            await(some(received(('start_voting', round, alive_list)))) # need to use some() to capture the variables properly in distalgo
             self.alive_players = set(alive_list)
         
             if self in self.alive_players: # Only vote if you're still alive_list
                 targets = self.alive_players - {self}
                 if targets: 
                     my_vote = random.choice(list(targets)) # random voting
-                    send(('vote', round, my_vote, self), to=coordinator)
-                    output(f'Player {self} votes to eliminate Player {my_vote}') #self.id is deprecated
+                    send(('vote', round, my_vote, self), to=self.coordinator)  # Fixed: added self.
+                    output(f'Player {self.player_id} votes to eliminate Player {my_vote}') # Fixed: use player_id for display
                 
             # Wait for results
             await(received(('elimination', round, eliminated_player)))
             if eliminated_player == self: 
-                output(f'Player {self} has been eliminated!')
+                output(f'Player {self.player_id} has been eliminated!')  # Fixed: use player_id for display
                 break
             else: 
-                output(f'Player {self} sees Player {eliminated_player} eliminated')
+                output(f'Player {self.player_id} sees Player {eliminated_player} eliminated')  # Fixed: use player_id for display
 
             round += 1
 
 
 class Coordinator(process): # Sends "start" messages and collects votes
-    def setup(self, players):
+    def setup(players):
         self.players = players
         self.alive_players = set(players)
 
@@ -62,14 +62,14 @@ class Coordinator(process): # Sends "start" messages and collects votes
             output(f'=== Round {round}: {len(self.alive_players)} players remaining ===')
 
             # Start voting round
-            send(('start_voting', round, list(self.alive_players)), to= self.alive_players)
+            send(('start_voting', round, list(self.alive_players)), to=self.alive_players)  # Fixed: removed space
 
             # Collect votes from alive players
-            await(each(p in self.alive_players, has=received(('vote', round, target, p))))
+            await(each(p in self.alive_players, has=some(received(('vote', round, target, p)))))
 
             # Incrementally tally elimination votes
             vote_counts = {}
-            for (target, voter_id) in setof((target, voter_id), received(('vote', round, target, voter_id))):
+            for (target, voter) in setof((target, voter), received(('vote', round, target, voter))):  # Fixed: voter instead of voter_id
             # setof(expresion, condition) -> expression: what to extract from each matching message, condition -> which messages to look at 
             # looks at all received messages that match pattern ('vote', round, target, voter_id)
             # for each matching message extract the tuple (target, voter_id)
@@ -111,8 +111,8 @@ class Coordinator(process): # Sends "start" messages and collects votes
 
         # Game over
         if self.alive_players:
-            winner = list(self.alive_players)[0]
-            output(f'GAME OVER: Player {winner.id} wins!')
+            winner = some(p in self.alive_players)   # Fixed: use some() instead of list()[0]
+            output(f'GAME OVER: Player {winner} wins!')  
         else: 
             output('GAME OVER! No survivors.')
 
@@ -121,16 +121,16 @@ class Coordinator(process): # Sends "start" messages and collects votes
 def main():
     nplayers = int(sys.argv[1]) if len(sys.argv) > 1 else 5 # default value 5
 
-    config(channel = 'fifo', clock = 'lamport')
+    config(channel='fifo', clock='lamport')  
 
     coordinator = new(Coordinator)
     players = new(Player, num=nplayers)
 
     setup(coordinator, (players,))
-    for i, p  in enumerate(players):
+    for i, p in enumerate(players):
         setup(p, (i, players, coordinator))
     
-    start([coordinator] + players)
+    start([coordinator] + list(players))
 
 
 if __name__ == '__main__':
