@@ -14,9 +14,10 @@ class P(process):
             send(('request', c, self), to=s)
             
             # Lamport await condition - make sure that timing is correct
-            await(each(p in s, has=received(('request', c2, p)), 
-                      has=received(('release', c2, p)) or (c, self) < (c2, p))
-                  and each(p in s, has=some(received(('ack', c2, p)), has=c2 > c)))
+            await(each(p in s, 
+                      has=(some(received(('request', c2, p)), 
+                               has=(received(('release', c2, p)) or (c, self) < (c2, p)))
+                           and some(received(('ack', c2, p)), has=c2 > c))))
             
             # Critical section  
             task()
