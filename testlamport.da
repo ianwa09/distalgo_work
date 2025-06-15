@@ -7,7 +7,7 @@ class P(process):
         send(('request', c, self), to= s)
         await(each(received(('request', c2, p)),
                    has= received(('release', c2, p)) or (c, self) < (c2, p))
-                and each(p in s, has= some(receiv(('ack', c2, _p)), has= c2 > c)))
+                and each(p in s, has= some(received(('ack', c2, _p)), has= c2 > c)))
         -- critical_selection
         task()
         -- release
