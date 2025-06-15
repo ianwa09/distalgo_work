@@ -1,10 +1,10 @@
 # Multiplayer Voting Game Implementation in DistAlgo
 
-A distributed voting elimination "game" (simulation) built with DistAlgo, demonstrating Liu et al.'s incrementalization framework for efficient distributed computation.
+A distributed voting elimination game simulation built with DistAlgo, demonstrating basic distributed systems concepts including centralized coordination and state management.
 
 ## Overview
 
-This project implements a multiplayer elimination game where players vote to remove others until only one remains. The system showcases incremental computing techniques to optimize distributed gaming scenarios by avoiding unnecessary recomputation and maintaining efficient state management across multiple processes.
+This project implements a multiplayer elimination game where players vote to remove others until only one remains. The system uses a centralized coordinator pattern and showcases basic distributed programming techniques in DistAlgo.
 
 ## Installation
 
@@ -14,7 +14,7 @@ pip install pyDistAlgo
 
 # Clone or download the project files
 # amongus.da should be in your working directory
-# Note that only Python versions 7, 8, and 9 are supported by DistAlgo.
+# Note that DistAlgo supports Python versions 3.7, 3.8, and 3.9.
 ```
 
 ## Usage
@@ -38,8 +38,8 @@ python -m da amongus.da 3
 
 ### Components
 
-**Player Process**: Manages individual player voting logic and state handling
-**Coordinator Process**: Handles vote collection, tallying, and game coordination
+- **Player Process**: Manages individual player voting logic and state
+- **Coordinator Process**: Centralized vote collection, tallying, and game coordination (single point of coordination)
 
 ### Message Types
 
@@ -47,25 +47,23 @@ python -m da amongus.da 3
 - `('vote', round, target, voter)`: Player sends vote to coordinator
 - `('elimination', round, eliminated_player)`: Coordinator announces elimination
 
-## Incrementalization
+## Implementation Features
 
-Maintaining Loop Invariants as First-Class State
+### State Management
 
-- **Persistent Game State**: The system maintains `alive_players` sets and `current_round` counters across voting rounds rather than recomputing from scratch
-- **Incremental Updates**: Player elimination updates the living player set incrementally (`self.alive_players.remove(eliminated)`) instead of rebuilding the entire game state
+- **Round-based Processing**: Messages filtered by round number for consistency
+- **Distributed State**: Each player maintains local game state
+- **Centralized Coordination**: Coordinator manages global game logic
 
-Selective Message Processing (P2 Principle)
+### Optimizations
 
-- **Change-Driven Processing**: Message handlers filter by round number (`if round == self.current_round`) to process only relevant updates
-- **Avoid Reprocessing**: Each message is handled exactly once per round, preventing duplicate processing of old messages, as DistAlgo stores all previous messages when using `some()` and `setof()` syntax (without this, processes would be stuck in an infinite loop of processing old messages)
-- **Event-Based Updates**: The simulation system will respond to specific events, like votes or eliminations, instead of performing full state analyses, which would be too expensive and inefficient
-- **Incremental Vote Collection**: The Coordinator instance for each simulation will collect and tally votes as they arrive, rather than batch processing
+- **Selective Message Processing**: Handlers filter by round to avoid reprocessing
+- **Batch Vote Collection**: Coordinator processes all votes per round together
+- **State Synchronization**: Round-based updates keep all processes synchronized
 
-### Benefits
+### Limitations
 
-- **Fault Tolerance**: Each process maintains independent state, reducing dependency on complete system state
-- **Scalability**: Performance scales with actual game changes rather than player count
-- **Consistency**: Round-based message filtering ensures consistent distributed state
+- The algorithm could be optimized using Incrementalization, and the algorithm could be written as a consensus algorithm, where there is no coordinator process. This would improve fault tolerance, as there will be no reliance on a central coordinator. The algorithm also utilizes rather simple state updates, which could be improved with the incrementalization framework by performing incremental vote collection. For the future I will work on an implementation that follows the incrementalization framework described by Liu et al.
 
 ## References
 
