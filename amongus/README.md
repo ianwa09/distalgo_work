@@ -1,6 +1,6 @@
 # Multiplayer Voting Game Implementation in DistAlgo
 
-A distributed voting elimination "game" (simulation) built with DistAlgo, demonstrating Dr. Liu's incrementalization framework for efficient distributed computation.
+A distributed voting elimination "game" (simulation) built with DistAlgo, demonstrating Liu et al.'s incrementalization framework for efficient distributed computation.
 
 ## Overview
 
