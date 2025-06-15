@@ -6,7 +6,7 @@ This DistAlgo implementation of Lamport's distributed mutual exclusion algorithm
 
 ## Prerequisites
 
-- **Python 3.7** (DistAlgo does not support Python 3.8+)
+- **Python 3.7** DistAlgo supports Python 3.7, 3.8, and 3.9
 - **DistAlgo package**: Install with `py -3.7 -m pip install pyDistAlgo`
 
 ## Quick Start
@@ -64,7 +64,7 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 
 ### Things that I learned..
 
-- DistAlgo is a **DSL that compiles to Python**, not a Python library
+- DistAlgo is a **general purpose programming language that compiles to Python**, not a Python library
 - **File extensions matter**: `.da` triggers compilation, `.py` runs raw Python
 - **Version consistency**: Every command needs explicit `py -3.7`
 - **High-level syntax**: Use `process`, `new()`, `start()` after compilation
