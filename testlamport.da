@@ -33,3 +33,6 @@ def main():
     ps = new(P, num= nprocs)
     for p in ps: setup(p, (ps-{p}, nrequests))
     start(ps)
+
+if __name__ == '__main__':
+    main()
