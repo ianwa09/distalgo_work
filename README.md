@@ -6,7 +6,7 @@ This DistAlgo implementation of Lamport's distributed mutual exclusion algorithm
 
 ## Prerequisites
 
-- **Python 3.7** (DistAlgo does not support Python 3.8+)
+- **Python 3.7** DistAlgo supports Python 3.7, 3.8, and 3.9
 - **DistAlgo package**: Install with `py -3.7 -m pip install pyDistAlgo`
 
 ## Quick Start
@@ -56,15 +56,15 @@ DistAlgo is a domain-specific language that compiles to Python. Files must have 
 ### The Problem Chain
 
 1. **Python Version Conflicts** - System defaulted to Python 3.13
-2. **Import Hell** - Treated DistAlgo as regular Python library
-3. **Low-Level API Struggles** - Tried to instantiate processes manually
-4. **Configuration Nightmares** - Couldn't configure `global_init()` properly
-5. **File Extension Revelation** - Used `.py` instead of `.da`
+2. **Imports** - Treated DistAlgo as regular Python library
+3. **API Struggles** - Tried to instantiate processes manually
+4. **Configuration** - Couldn't configure `global_init()` properly
+5. **File Extension** - Used `.py` instead of `.da`
 6. **Syntax Issues** - Incorrect pattern matching syntax
 
 ### Things that I learned..
 
-- DistAlgo is a **DSL that compiles to Python**, not a Python library
+- DistAlgo is a **general purpose programming language that compiles to Python**, not a Python library
 - **File extensions matter**: `.da` triggers compilation, `.py` runs raw Python
 - **Version consistency**: Every command needs explicit `py -3.7`
 - **High-level syntax**: Use `process`, `new()`, `start()` after compilation
@@ -100,6 +100,7 @@ If you encounter issues:
 2. **Check DistAlgo installation**: `py -3.7 -c "import da; print(da.__version__)"`
 3. **Test with simple file**: `py -3.7 -m da test.da`
 4. **Ensure .da extension**: DistAlgo won't work with `.py` files
+5. **Check the official documentation**: You can find more accurate descriptions from the [official DistAlgo Documentation](https://github.com/DistAlgo/distalgo).
 
 ## References
 
